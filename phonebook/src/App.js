@@ -1,29 +1,34 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import Filter from './components/Filter'
 import AddNew from './components/AddNew'
+import axios from 'axios'
 
 const App = () => {
-  const [ persons, setPersons ] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
-  ]) 
-
+  const [contacts , setContacts] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber] = useState('')
   const [searchName, setSearcName] = useState ('')
 
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('promise fulfilled')
+        setContacts(response.data)
+      })
+  }, [])
+
   const numbersToShow = searchName 
-  ? persons.filter(person => person.name.toLowerCase().includes(searchName.toLowerCase()))
-  : persons
+  ? contacts.filter(person => person.name.toLowerCase().includes(searchName.toLowerCase()))
+  : contacts
 
   const addName = event => {
     event.preventDefault()
     console.log("new person being added");
     let contains = false
-    persons.forEach(person => {
+    contacts.forEach(person => {
       if (newName === person.name){
         window.alert(`${newName} is already added to the phonebook`)
        contains = true 
@@ -35,7 +40,7 @@ const App = () => {
         name : newName,
         number : newNumber
       }
-      setPersons(persons.concat(nameObject))
+      setContacts(contacts.concat(nameObject))
       setNewName('')
       setNewNumber('')
     }
