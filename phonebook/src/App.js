@@ -3,6 +3,7 @@ import Persons from './components/Persons'
 import Filter from './components/Filter'
 import AddNew from './components/AddNew'
 import axios from 'axios'
+import contactservice from './services/contact'
 
 const App = () => {
   const [contacts , setContacts] = useState([])
@@ -30,9 +31,7 @@ const App = () => {
     let contains = false
     contacts.forEach(person => {
       if (newName === person.name){
-        window.alert(`${newName} is already added to the phonebook`)
-       contains = true 
-       return
+        contains = true 
       }
     })
     if (!contains){
@@ -40,9 +39,60 @@ const App = () => {
         name : newName,
         number : newNumber
       }
-      setContacts(contacts.concat(nameObject))
-      setNewName('')
-      setNewNumber('')
+
+      contactservice
+        .create(nameObject)
+        .then(response => {
+          setContacts(contacts.concat(response.data))
+        setNewName('')
+        setNewNumber('')
+        })
+
+
+      
+    }
+    if (contains){
+      const currentContact = contacts.find(contact => contact.name === newName)
+      console.log("current contact",currentContact);
+      const nameObject = {
+        ...currentContact,
+        number: newNumber
+      }
+
+      console.log("new contact",nameObject);
+
+      const result = window.confirm(`${nameObject.name} already exists, replace the old number with a new one ?`)
+
+      if (result){
+      contactservice
+      .update(nameObject, nameObject.id)
+      .then(response => {
+        console.log(response);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+
+      setContacts(contacts.map(contact => contact.id !== nameObject.id ? contact : nameObject))
+    }
+  }
+  }
+
+  const deleteContact = id => {
+    const contact1 = contacts.filter(contact => contact.id === id)
+    const result = window.confirm(`Delete ${contact1[0].name} ?`)
+
+    if (result){
+    contactservice
+      .deleteContact(id)
+      .then(response => {
+        console.log(response)
+      })
+      .catch(err => {
+        console.log(err);
+      })
+
+      setContacts(contacts.filter(contact => contact.id !== id))
     }
   }
 
@@ -66,7 +116,7 @@ const App = () => {
       <AddNew onSubmit={addName} newName={newName} handleName={handleName} newNumber={newNumber} handleNumber={handleNumber}/>
       <h2>Numbers</h2>
       <div>
-        <Persons contacts={numbersToShow} />
+        <Persons contacts={numbersToShow} handleClick={deleteContact}/>
       </div>
     </div>
   )

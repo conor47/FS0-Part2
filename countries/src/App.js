@@ -1,11 +1,12 @@
 import axios from 'axios'
 import React, { useState, useEffect } from 'react'
-
+import Display from './components/Display'
 
 function App() {
 
   const [countrySearch , setCountry] = useState('')
   const [countries, setCountries] = useState([])
+  const [search, setSearch] = useState(false)
 
   useEffect(() => {
     console.log('effect')
@@ -23,12 +24,13 @@ function App() {
   
   const handleSearch = (event) => {
     setCountry(event.target.value)
+    setSearch(true)
   }
-  console.log(countriesToshow)
-  
+   
   return (
     <div className="App">
-      find countries <input onChange={handleSearch}/>
+      find countries <input value={countrySearch} onChange={handleSearch}/>
+      <Display countriesToshow={countriesToshow} search={search}/>
     </div>
   );
 }
