@@ -2,14 +2,17 @@ import React, { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import Filter from './components/Filter'
 import AddNew from './components/AddNew'
+import Notification from './components/Notification'
 import axios from 'axios'
 import contactservice from './services/contact'
+
 
 const App = () => {
   const [contacts , setContacts] = useState([])
   const [ newName, setNewName ] = useState('')
   const [ newNumber, setNewNumber] = useState('')
   const [searchName, setSearcName] = useState ('')
+  const [message, setMessage] = useState ('')
 
   useEffect(() => {
     console.log('effect')
@@ -46,6 +49,10 @@ const App = () => {
           setContacts(contacts.concat(response.data))
         setNewName('')
         setNewNumber('')
+        setMessage(`${nameObject.name} was successfully added`)
+        setTimeout(() => {
+          setMessage('')
+        }, 5000)
         })
 
 
@@ -72,6 +79,11 @@ const App = () => {
       .catch(err => {
         console.log(err);
       })
+
+      setMessage(`${nameObject.name} was successfully updated`)
+        setTimeout(() => {
+          setMessage('')
+        }, 5000)
 
       setContacts(contacts.map(contact => contact.id !== nameObject.id ? contact : nameObject))
     }
@@ -111,6 +123,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} />
       <Filter onChange={handleSearch} />
       <h2>Add a new</h2>
       <AddNew onSubmit={addName} newName={newName} handleName={handleName} newNumber={newNumber} handleNumber={handleNumber}/>
